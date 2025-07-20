@@ -151,6 +151,13 @@ function App() {
   const [stations, setStations] = useState<string[][]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draggedCode, setDraggedCode] = useState<string | null>(null);
+  const [colorOverlayOpen, setColorOverlayOpen] = useState(false);
+  const [primaryColor, setPrimaryColor] = useState<string>(() => localStorage.getItem('primaryColor') || '#357ab7');
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--primary-color', primaryColor);
+    localStorage.setItem('primaryColor', primaryColor);
+  }, [primaryColor]);
 
   // dnd-kit sensors
   const sensors = useSensors(
@@ -316,7 +323,73 @@ function App() {
   );
 
   return (
-    <div className="app-container">
+    <div className="app-container" style={{ position: 'relative' }}>
+      {/* Floating color picker button */}
+      <button
+        onClick={() => setColorOverlayOpen(true)}
+        style={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          zIndex: 100,
+          background: 'var(--primary-color, #357ab7)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '50%',
+          width: 48,
+          height: 48,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          fontSize: 28,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        aria-label="Choose color scheme"
+        title="Choose color scheme"
+      >
+        🎨
+      </button>
+      {/* Color wheel overlay */}
+      {colorOverlayOpen && (
+        <div
+          onClick={e => {
+            if (e.target === e.currentTarget) setColorOverlayOpen(false);
+          }}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.25)',
+            zIndex: 200,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div style={{ background: 'white', borderRadius: 16, padding: 32, boxShadow: '0 4px 24px rgba(0,0,0,0.18)', minWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+            <button
+              onClick={() => setColorOverlayOpen(false)}
+              style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', fontSize: 22, color: '#888', cursor: 'pointer' }}
+              aria-label="Close color picker"
+              title="Close color picker"
+            >
+              ×
+            </button>
+            <h3 style={{ margin: '0 0 18px 0', color: 'var(--primary-color, #357ab7)' }}>Choose a color scheme</h3>
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={e => setPrimaryColor(e.target.value)}
+              style={{ width: 120, height: 120, border: 'none', background: 'none', cursor: 'pointer' }}
+              aria-label="Pick a color"
+            />
+            <div style={{ marginTop: 18, fontSize: 16, color: '#555' }}>{primaryColor}</div>
+          </div>
+        </div>
+      )}
       <div className="weather-panel">
         <WeatherPanel />
       </div>

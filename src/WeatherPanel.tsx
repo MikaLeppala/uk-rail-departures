@@ -89,6 +89,20 @@ function degToCompass(num: number) {
   return arr[(val % 16)];
 }
 
+// Utility to lighten a hex color
+function lightenColor(hex: string, percent: number) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
+  const num = parseInt(hex, 16);
+  let r = (num >> 16) + Math.round(255 * percent);
+  let g = ((num >> 8) & 0x00FF) + Math.round(255 * percent);
+  let b = (num & 0x0000FF) + Math.round(255 * percent);
+  r = Math.min(255, r);
+  g = Math.min(255, g);
+  b = Math.min(255, b);
+  return `rgb(${r},${g},${b})`;
+}
+
 const WeatherPanel: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [hourly, setHourly] = useState<HourlyWeather[]>([]);
@@ -98,6 +112,9 @@ const WeatherPanel: React.FC = () => {
   const [locError, setLocError] = useState<string | null>(null);
   const [locationName, setLocationName] = useState<string>('');
   const [collapsed, setCollapsed] = useState(false);
+
+  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#357ab7';
+  const lightBg = lightenColor(primaryColor.trim(), 0.7); // 70% lighter
 
   // Get user location on mount
   useEffect(() => {
@@ -215,7 +232,7 @@ const WeatherPanel: React.FC = () => {
   const sportSuggestion = weather && !loading && !error ? getSportSuggestion(weather.wind_speed_10m, weather.weathercode) : '';
 
   return (
-    <div style={{ width: '100%', background: '#e3eafc', borderRadius: 10, padding: '10px 12px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 60, position: 'relative' }}>
+    <div style={{ width: '100%', background: lightBg, borderRadius: 10, padding: '10px 12px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 60, position: 'relative' }}>
       {/* Collapse/Expand Button */}
       <button
         onClick={() => setCollapsed(c => !c)}
@@ -223,7 +240,7 @@ const WeatherPanel: React.FC = () => {
           position: 'absolute',
           top: 8,
           right: 12,
-          background: '#357ab7',
+          background: 'var(--primary-color, #357ab7)',
           color: 'white',
           border: 'none',
           borderRadius: 6,
@@ -240,7 +257,7 @@ const WeatherPanel: React.FC = () => {
       {/* Top: Centered location and weather summary */}
       {!collapsed && (
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 6 }}>
-          <div style={{ fontWeight: 600, fontSize: '1.1em', letterSpacing: 0.2, color: '#357ab7', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontWeight: 600, fontSize: '1.1em', letterSpacing: 0.2, color: 'var(--primary-color, #357ab7)', display: 'flex', alignItems: 'center', gap: 6 }}>
             {getWeatherIcon(weather?.weathercode ?? 0)}
             <span>{locationName ? locationName : (location ? 'Location' : '')}</span>
           </div>
@@ -249,7 +266,7 @@ const WeatherPanel: React.FC = () => {
               <div style={{ fontSize: '1.05em', color: '#222', marginBottom: 2 }}>
                 {weather.temperature_2m}°C &nbsp;·&nbsp; Feels like {weather.apparent_temperature}°C &nbsp;·&nbsp; {weatherCodeMap[weather.weathercode] || 'Unknown'} &nbsp;·&nbsp; Wind: {weather.wind_speed_10m} m/s {typeof weather.wind_direction_10m === 'number' ? `(${degToCompass(weather.wind_direction_10m)})` : ''}
               </div>
-              <div style={{ fontSize: '0.98em', color: '#357ab7', fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center', justifySelf: 'center' }}>
+              <div style={{ fontSize: '0.98em', color: 'var(--primary-color, #357ab7)', fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center', justifySelf: 'center' }}>
                 {sportSuggestion}
               </div>
             </div>

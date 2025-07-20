@@ -13,8 +13,12 @@
   }
 }
 
+:root {
+  --primary-color: #357ab7;
+}
+
 .App-header {
-  background-color: #282c34;
+  background-color: var(--primary-color, #282c34);
   min-height: 100vh;
   display: flex;
   flex-direction: column;

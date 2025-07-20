@@ -41,7 +41,7 @@ const weatherCodeMap: Record<number, string> = {
 };
 
 const headerStyle: React.CSSProperties = {
-  background: 'linear-gradient(90deg, #4a90e2 60%, #357ab7 100%)',
+  background: 'var(--primary-color, #357ab7)',
   color: 'white',
   padding: '8px 14px',
   borderRadius: '8px 8px 0 0',
