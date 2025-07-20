@@ -5,6 +5,7 @@ interface WeatherData {
   apparent_temperature: number;
   precipitation: number;
   wind_speed_10m: number;
+  wind_direction_10m: number; // degrees
   weathercode: number;
 }
 
@@ -67,6 +68,25 @@ function getWeatherIcon(code: number) {
   if (code >= 80 && code <= 82) return '🌦️';
   if (code >= 95) return '⛈️';
   return '❔';
+}
+
+// Suggest a sport based on wind and weather
+function getSportSuggestion(wind: number, code: number) {
+  if (code >= 61 && code <= 67) return 'Best to stay indoors (rainy)';
+  if (code >= 71 && code <= 77) return 'Maybe build a snowman!';
+  if (code >= 80 && code <= 82) return 'Take a raincoat for outdoor sports';
+  if (code >= 95) return 'Thunderstorm: avoid outdoor sports';
+  if (wind > 8) return 'Great for kite flying or windsurfing!';
+  if (wind > 5) return 'Good for sailing or flying a kite';
+  if (wind > 2) return 'Nice for running or cycling';
+  return 'Perfect for a walk or picnic';
+}
+
+// Utility to convert wind direction in degrees to compass direction
+function degToCompass(num: number) {
+  const val = Math.floor((num / 22.5) + 0.5);
+  const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+  return arr[(val % 16)];
 }
 
 const WeatherPanel: React.FC = () => {
@@ -138,7 +158,7 @@ const WeatherPanel: React.FC = () => {
     setError(null);
     const { lat, lon } = location;
     fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,apparent_temperature,precipitation,wind_speed_10m&hourly=temperature_2m,weathercode&timezone=auto`
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,apparent_temperature,precipitation,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,weathercode&timezone=auto`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -150,6 +170,7 @@ const WeatherPanel: React.FC = () => {
           apparent_temperature: current.apparent_temperature ?? current.temperature,
           precipitation: current.precipitation ?? 0,
           wind_speed_10m: current.wind_speed_10m ?? current.windspeed,
+          wind_direction_10m: current.wind_direction_10m ?? current.winddirection,
           weathercode: current.weathercode,
         });
         // Find the current hour index
@@ -191,6 +212,8 @@ const WeatherPanel: React.FC = () => {
     clothingText = getClothingSuggestion(maxTemp, 0, mainCode);
   }
 
+  const sportSuggestion = weather && !loading && !error ? getSportSuggestion(weather.wind_speed_10m, weather.weathercode) : '';
+
   return (
     <div style={{ width: '100%', background: '#e3eafc', borderRadius: 10, padding: '10px 12px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 60, position: 'relative' }}>
       {/* Collapse/Expand Button */}
@@ -222,11 +245,13 @@ const WeatherPanel: React.FC = () => {
             <span>{locationName ? locationName : (location ? 'Location' : '')}</span>
           </div>
           {weather && !loading && !error && (
-            <div style={{ fontSize: '1.05em', color: '#222', marginTop: 2 }}>
-              {weather.temperature_2m}°C, {weatherCodeMap[weather.weathercode] || 'Unknown'}
-              <span style={{ fontSize: '0.95em', color: '#357ab7', marginLeft: 8 }}>
-                Feels like {weather.apparent_temperature}°C
-              </span>
+            <div style={{ width: '100%', marginTop: 6, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ fontSize: '1.05em', color: '#222', marginBottom: 2 }}>
+                {weather.temperature_2m}°C &nbsp;·&nbsp; Feels like {weather.apparent_temperature}°C &nbsp;·&nbsp; {weatherCodeMap[weather.weathercode] || 'Unknown'} &nbsp;·&nbsp; Wind: {weather.wind_speed_10m} m/s {typeof weather.wind_direction_10m === 'number' ? `(${degToCompass(weather.wind_direction_10m)})` : ''}
+              </div>
+              <div style={{ fontSize: '0.98em', color: '#357ab7', fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center', justifySelf: 'center' }}>
+                {sportSuggestion}
+              </div>
             </div>
           )}
           {locError && <div style={{ color: 'red', fontSize: '0.95em' }}>{locError}</div>}
