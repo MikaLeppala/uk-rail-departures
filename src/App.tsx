@@ -25,26 +25,30 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
 }
 
 const londonTerminals = [
-  'KGX', // Kings Cross
-  'EUS', // Euston
-  'PAD', // Paddington
-  'WAT', // Waterloo
-  'VIC', // Victoria
-  'LST', // Liverpool Street
-  'CHX', // Charing Cross
-  'CST', // Cannon Street
-  'FST', // Fenchurch Street
-  'STP', // St Pancras International
+  'KGX', 'EUS', 'PAD', 'WAT', 'VIC', 'LST', 'CHX', 'CST', 'FST', 'STP',
 ];
 
 const fallbackStations = [
   'KGX', 'EUS', 'PAD', 'WAT'
 ];
 
+const STORAGE_KEY = 'stationGrid';
+
 function App() {
   const [stations, setStations] = useState<string[][]>([]);
 
+  // Load from localStorage or use geolocation/default
   useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setStations(parsed);
+          return;
+        }
+      } catch {}
+    }
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -78,6 +82,13 @@ function App() {
       setStations([[fallbackStations[0], fallbackStations[1]], [fallbackStations[2], fallbackStations[3]]]);
     }
   }, []);
+
+  // Persist to localStorage on any change
+  useEffect(() => {
+    if (stations.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stations));
+    }
+  }, [stations]);
 
   const handleStationChange = (rowIndex: number, colIndex: number, value: string) => {
     const updated = stations.map(row => [...row]);
