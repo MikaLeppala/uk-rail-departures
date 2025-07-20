@@ -242,7 +242,7 @@ const WeatherPanel: React.FC = () => {
           position: 'relative',
           display: 'inline-block',
         }}>
-          12h Forecast
+          24h Forecast
           <span style={{
             display: 'block',
             height: 3,
