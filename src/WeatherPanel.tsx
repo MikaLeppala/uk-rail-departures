@@ -240,17 +240,21 @@ const WeatherPanel: React.FC = () => {
           position: 'absolute',
           top: 8,
           right: 12,
-          background: 'var(--primary-color, #357ab7)',
-          color: 'white',
-          border: 'none',
+          background: '#f3f4f7', // light gray
+          color: '#888',
+          border: '1.5px solid #d1d5db', // subtle border
           borderRadius: 6,
           padding: '2px 10px',
           fontSize: '0.98em',
           cursor: 'pointer',
           zIndex: 20,
+          opacity: 0.7,
+          transition: 'background 0.2s, color 0.2s, opacity 0.2s',
         }}
         aria-label={collapsed ? 'Expand weather panel' : 'Collapse weather panel'}
         title={collapsed ? 'Expand weather panel' : 'Collapse weather panel'}
+        onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+        onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; }}
       >
         {collapsed ? '▼' : '▲'}
       </button>
