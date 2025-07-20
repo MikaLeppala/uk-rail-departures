@@ -96,10 +96,15 @@ function DraggableStationCell({
         transition: 'background 0.2s, opacity 0.2s',
       }}
       {...attributes}
-      {...listeners}
+      // Removed {...listeners} from here
     >
       <div style={{ cursor: 'grab', marginBottom: 8, display: 'flex', alignItems: 'center' }}>
-        <span style={{ fontSize: 18, marginRight: 6, userSelect: 'none' }}>☰</span>
+        <span
+          style={{ fontSize: 18, marginRight: 6, userSelect: 'none', cursor: 'grab' }}
+          {...listeners}
+        >
+          ☰
+        </span>
         <span style={{ fontSize: '0.9em', color: '#666' }}>Station:</span>
         <input
           type="text"
