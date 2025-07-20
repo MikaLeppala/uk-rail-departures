@@ -174,6 +174,22 @@ const WeatherPanel: React.FC = () => {
       });
   }, [location]);
 
+  // Suggestion and rain logic for next 12h
+  let clothingText = '';
+  let rainIn12h = false;
+  if (weather && !loading && !error && hourly.length > 0) {
+    const next12h = hourly.slice(0, 12);
+    // Use the most severe code and max precip/temp in next 12h
+    const maxTemp = Math.max(...next12h.map(h => h.temperature));
+    const mainCode = next12h.reduce((prev, curr) => (curr.weathercode > prev.weathercode ? curr : prev), next12h[0]).weathercode;
+    rainIn12h = next12h.some(h =>
+      (h.weathercode >= 51 && h.weathercode <= 67) ||
+      (h.weathercode >= 80 && h.weathercode <= 82) ||
+      (h.weathercode === 63 || h.weathercode === 65)
+    );
+    clothingText = getClothingSuggestion(maxTemp, 0, mainCode);
+  }
+
   return (
     <div style={{ width: '100%', background: '#e3eafc', borderRadius: 10, padding: '10px 12px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 120 }}>
       {/* Top: Centered location and weather summary */}
@@ -195,31 +211,24 @@ const WeatherPanel: React.FC = () => {
         {error && <div style={{ color: 'red', fontSize: '0.95em' }}>{error}</div>}
       </div>
       {/* Suggestion */}
-      {weather && !loading && !error && (
+      {clothingText && (
         <div style={{ fontSize: '0.97em', color: '#357ab7', fontStyle: 'italic', marginBottom: 6, textAlign: 'center' }}>
-          {getClothingSuggestion(weather.temperature_2m, weather.precipitation, weather.weathercode)}
+          {clothingText}
         </div>
       )}
       {/* Hourly forecast and rain chance */}
       <div style={{ width: '100%' }}>
         {/* Rain chance message */}
         {hourly.length > 0 && (
-          (() => {
-            const rainIn24h = hourly.some(h =>
-              (h.weathercode >= 51 && h.weathercode <= 67) || // drizzle/rain
-              (h.weathercode >= 80 && h.weathercode <= 82) || // rain showers
-              (h.weathercode === 63 || h.weathercode === 65)   // rain
-            );
-            return rainIn24h ? (
-              <div style={{ color: '#357ab7', fontWeight: 600, fontSize: '0.98em', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span role="img" aria-label="rain">🌧️</span> Rain expected in the next 24 hours
-              </div>
-            ) : (
-              <div style={{ color: '#4a90e2', fontWeight: 500, fontSize: '0.97em', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span role="img" aria-label="no rain">☀️</span> No rain expected in the next 24 hours
-              </div>
-            );
-          })()
+          rainIn12h ? (
+            <div style={{ color: '#357ab7', fontWeight: 600, fontSize: '0.98em', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span role="img" aria-label="rain">🌧️</span> Rain expected in the next 12 hours
+            </div>
+          ) : (
+            <div style={{ color: '#4a90e2', fontWeight: 500, fontSize: '0.97em', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span role="img" aria-label="no rain">☀️</span> No rain expected in the next 12 hours
+            </div>
+          )
         )}
         <div style={{
           fontWeight: 700,
@@ -233,7 +242,7 @@ const WeatherPanel: React.FC = () => {
           position: 'relative',
           display: 'inline-block',
         }}>
-          24h Forecast
+          12h Forecast
           <span style={{
             display: 'block',
             height: 3,
@@ -244,7 +253,7 @@ const WeatherPanel: React.FC = () => {
           }} />
         </div>
         <div style={{ display: 'flex', overflowX: 'auto', gap: 2, paddingBottom: 2 }}>
-          {hourly.map((h, i) => (
+          {hourly.slice(0, 12).map((h, i) => (
             <div key={h.time} style={{ minWidth: 36, maxWidth: 44, flex: '1 1 36px', background: '#fafdff', borderRadius: 7, boxShadow: '0 1px 3px rgba(60,90,130,0.07)', padding: '2px 1px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', fontSize: '0.95em' }}>
               <div style={{ fontSize: '1.1em', marginBottom: 0 }}>{getWeatherIcon(h.weathercode)}</div>
               <div style={{ fontWeight: 500, color: '#357ab7', fontSize: '0.98em', marginBottom: 0 }}>{Math.round(h.temperature)}°</div>
