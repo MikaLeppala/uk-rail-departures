@@ -114,7 +114,7 @@ const WeatherPanel: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#357ab7';
-  const lightBg = lightenColor(primaryColor.trim(), 0.7); // 70% lighter
+  const lightBg = lightenColor(primaryColor.trim(), 0.3); // 30% lighter (closer to selected color)
 
   // Get user location on mount
   useEffect(() => {
@@ -232,7 +232,7 @@ const WeatherPanel: React.FC = () => {
   const sportSuggestion = weather && !loading && !error ? getSportSuggestion(weather.wind_speed_10m, weather.weathercode) : '';
 
   return (
-    <div style={{ width: '100%', background: lightBg, borderRadius: 10, padding: '10px 12px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 60, position: 'relative' }}>
+    <div style={{ width: '100%', background: lightBg, borderRadius: 10, padding: '10px 12px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 60, position: 'relative', boxShadow: '0 2px 10px rgba(60,60,60,0.07)' }}>
       {/* Collapse/Expand Button */}
       <button
         onClick={() => setCollapsed(c => !c)}
