@@ -1,14 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import TrainBoard from './TrainBoard';
 import WeatherPanel from './WeatherPanel';
+import stationsData from './uk_stations.json';
+
+interface Station {
+  code: string;
+  name: string;
+  lat: number;
+  lon: number;
+}
+
+function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const toRad = (x: number) => (x * Math.PI) / 180;
+  const R = 6371; // km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+const londonTerminals = [
+  'KGX', // Kings Cross
+  'EUS', // Euston
+  'PAD', // Paddington
+  'WAT', // Waterloo
+  'VIC', // Victoria
+  'LST', // Liverpool Street
+  'CHX', // Charing Cross
+  'CST', // Cannon Street
+  'FST', // Fenchurch Street
+  'STP', // St Pancras International
+];
+
+const fallbackStations = [
+  'KGX', 'EUS', 'PAD', 'WAT'
+];
 
 function App() {
-  // Use a 2D array for dynamic grid layout
-  const [stations, setStations] = useState<string[][]>([
-    ['SNR', 'PUO'],
-    ['ECR', 'LBG']
-  ]);
+  const [stations, setStations] = useState<string[][]>([]);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          // Find 2 closest stations (anywhere)
+          const sorted = (stationsData as Station[])
+            .map(st => ({
+              ...st,
+              dist: haversine(latitude, longitude, st.lat, st.lon)
+            }))
+            .sort((a, b) => a.dist - b.dist);
+          const closest = sorted.slice(0, 2).map(st => st.code);
+          // Find 2 closest London terminals
+          const londonStations = (stationsData as Station[])
+            .filter(st => londonTerminals.includes(st.code))
+            .map(st => ({
+              ...st,
+              dist: haversine(latitude, longitude, st.lat, st.lon)
+            }))
+            .sort((a, b) => a.dist - b.dist)
+            .slice(0, 2)
+            .map(st => st.code);
+          setStations([closest, londonStations]);
+        },
+        () => {
+          setStations([[fallbackStations[0], fallbackStations[1]], [fallbackStations[2], fallbackStations[3]]]);
+        },
+        { enableHighAccuracy: false, timeout: 10000 }
+      );
+    } else {
+      setStations([[fallbackStations[0], fallbackStations[1]], [fallbackStations[2], fallbackStations[3]]]);
+    }
+  }, []);
 
   const handleStationChange = (rowIndex: number, colIndex: number, value: string) => {
     const updated = stations.map(row => [...row]);
