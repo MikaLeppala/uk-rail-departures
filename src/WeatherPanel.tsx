@@ -77,6 +77,7 @@ const WeatherPanel: React.FC = () => {
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locError, setLocError] = useState<string | null>(null);
   const [locationName, setLocationName] = useState<string>('');
+  const [collapsed, setCollapsed] = useState(false);
 
   // Get user location on mount
   useEffect(() => {
@@ -191,29 +192,57 @@ const WeatherPanel: React.FC = () => {
   }
 
   return (
-    <div style={{ width: '100%', background: '#e3eafc', borderRadius: 10, padding: '10px 12px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 120 }}>
+    <div style={{ width: '100%', background: '#e3eafc', borderRadius: 10, padding: '10px 12px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 60, position: 'relative' }}>
+      {/* Collapse/Expand Button */}
+      <button
+        onClick={() => setCollapsed(c => !c)}
+        style={{
+          position: 'absolute',
+          top: 8,
+          right: 12,
+          background: '#357ab7',
+          color: 'white',
+          border: 'none',
+          borderRadius: 6,
+          padding: '2px 10px',
+          fontSize: '0.98em',
+          cursor: 'pointer',
+          zIndex: 20,
+        }}
+        aria-label={collapsed ? 'Expand weather panel' : 'Collapse weather panel'}
+        title={collapsed ? 'Expand weather panel' : 'Collapse weather panel'}
+      >
+        {collapsed ? '▼' : '▲'}
+      </button>
       {/* Top: Centered location and weather summary */}
-      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 6 }}>
-        <div style={{ fontWeight: 600, fontSize: '1.1em', letterSpacing: 0.2, color: '#357ab7', display: 'flex', alignItems: 'center', gap: 6 }}>
-          {getWeatherIcon(weather?.weathercode ?? 0)}
-          <span>{locationName ? locationName : (location ? 'Location' : '')}</span>
-        </div>
-        {weather && !loading && !error && (
-          <div style={{ fontSize: '1.05em', color: '#222', marginTop: 2 }}>
-            {weather.temperature_2m}°C, {weatherCodeMap[weather.weathercode] || 'Unknown'}
-            <span style={{ fontSize: '0.95em', color: '#357ab7', marginLeft: 8 }}>
-              Feels like {weather.apparent_temperature}°C
-            </span>
+      {!collapsed && (
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 6 }}>
+          <div style={{ fontWeight: 600, fontSize: '1.1em', letterSpacing: 0.2, color: '#357ab7', display: 'flex', alignItems: 'center', gap: 6 }}>
+            {getWeatherIcon(weather?.weathercode ?? 0)}
+            <span>{locationName ? locationName : (location ? 'Location' : '')}</span>
           </div>
-        )}
-        {locError && <div style={{ color: 'red', fontSize: '0.95em' }}>{locError}</div>}
-        {loading && <div style={{ fontSize: '0.95em' }}>Loading...</div>}
-        {error && <div style={{ color: 'red', fontSize: '0.95em' }}>{error}</div>}
-      </div>
-      {/* Suggestion */}
-      {clothingText && (
-        <div style={{ fontSize: '0.97em', color: '#357ab7', fontStyle: 'italic', marginBottom: 6, textAlign: 'center' }}>
-          {clothingText}
+          {weather && !loading && !error && (
+            <div style={{ fontSize: '1.05em', color: '#222', marginTop: 2 }}>
+              {weather.temperature_2m}°C, {weatherCodeMap[weather.weathercode] || 'Unknown'}
+              <span style={{ fontSize: '0.95em', color: '#357ab7', marginLeft: 8 }}>
+                Feels like {weather.apparent_temperature}°C
+              </span>
+            </div>
+          )}
+          {locError && <div style={{ color: 'red', fontSize: '0.95em' }}>{locError}</div>}
+          {loading && <div style={{ fontSize: '0.95em' }}>Loading...</div>}
+          {error && <div style={{ color: 'red', fontSize: '0.95em' }}>{error}</div>}
+        </div>
+      )}
+      {/* Suggestion and rain chance message (now combined, only one line) */}
+      {hourly.length > 0 && (
+        <div style={{ color: rainIn12h ? '#357ab7' : '#4a90e2', fontWeight: 600, fontSize: '0.98em', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6, textAlign: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {rainIn12h ? (
+            <><span role="img" aria-label="rain">🌧️</span> Rain expected in the next 12 hours</>
+          ) : (
+            <><span role="img" aria-label="no rain">☀️</span> No rain expected in the next 12 hours</>
+          )}
+          {clothingText && <span style={{ color: '#357ab7', fontStyle: 'italic', fontWeight: 400, marginLeft: 8 }}>– {clothingText}</span>}
         </div>
       )}
       {/* Hourly forecast and rain chance */}
