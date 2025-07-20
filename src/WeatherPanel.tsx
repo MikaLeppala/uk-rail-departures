@@ -247,18 +247,6 @@ const WeatherPanel: React.FC = () => {
       )}
       {/* Hourly forecast and rain chance */}
       <div style={{ width: '100%' }}>
-        {/* Rain chance message */}
-        {hourly.length > 0 && (
-          rainIn12h ? (
-            <div style={{ color: '#357ab7', fontWeight: 600, fontSize: '0.98em', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span role="img" aria-label="rain">🌧️</span> Rain expected in the next 12 hours
-            </div>
-          ) : (
-            <div style={{ color: '#4a90e2', fontWeight: 500, fontSize: '0.97em', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span role="img" aria-label="no rain">☀️</span> No rain expected in the next 12 hours
-            </div>
-          )
-        )}
         <div style={{
           fontWeight: 700,
           fontSize: '1.13em',
