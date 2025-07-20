@@ -253,7 +253,7 @@ const WeatherPanel: React.FC = () => {
           }} />
         </div>
         <div style={{ display: 'flex', overflowX: 'auto', gap: 2, paddingBottom: 2 }}>
-          {hourly.slice(0, 12).map((h, i) => (
+          {hourly.slice(0, 24).map((h, i) => (
             <div key={h.time} style={{ minWidth: 36, maxWidth: 44, flex: '1 1 36px', background: '#fafdff', borderRadius: 7, boxShadow: '0 1px 3px rgba(60,90,130,0.07)', padding: '2px 1px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', fontSize: '0.95em' }}>
               <div style={{ fontSize: '1.1em', marginBottom: 0 }}>{getWeatherIcon(h.weathercode)}</div>
               <div style={{ fontWeight: 500, color: '#357ab7', fontSize: '0.98em', marginBottom: 0 }}>{Math.round(h.temperature)}°</div>
