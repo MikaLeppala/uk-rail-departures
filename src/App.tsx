@@ -332,23 +332,27 @@ function App() {
           bottom: 24,
           right: 24,
           zIndex: 100,
-          background: 'var(--primary-color, #357ab7)',
-          color: 'white',
-          border: 'none',
+          background: '#f3f4f7', // light gray
+          color: '#888',
+          border: '1.5px solid #d1d5db', // subtle border
           borderRadius: '50%',
           width: 48,
           height: 48,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           fontSize: 28,
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          opacity: 0.7,
+          transition: 'background 0.2s, color 0.2s, opacity 0.2s',
         }}
         aria-label="Choose color scheme"
         title="Choose color scheme"
+        onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+        onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; }}
       >
-        🎨
+        <span style={{ opacity: 0.7 }}>🎨</span>
       </button>
       {/* Color wheel overlay */}
       {colorOverlayOpen && (
