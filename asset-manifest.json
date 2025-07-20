@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/uk-rail-departures/static/css/main.35762399.css",
-    "main.js": "/uk-rail-departures/static/js/main.af6d72a6.js",
+    "main.js": "/uk-rail-departures/static/js/main.aeb5d636.js",
     "index.html": "/uk-rail-departures/index.html",
     "main.35762399.css.map": "/uk-rail-departures/static/css/main.35762399.css.map",
-    "main.af6d72a6.js.map": "/uk-rail-departures/static/js/main.af6d72a6.js.map"
+    "main.aeb5d636.js.map": "/uk-rail-departures/static/js/main.aeb5d636.js.map"
   },
   "entrypoints": [
     "static/css/main.35762399.css",
-    "static/js/main.af6d72a6.js"
+    "static/js/main.aeb5d636.js"
   ]
 }
