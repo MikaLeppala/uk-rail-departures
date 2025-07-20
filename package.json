@@ -2,6 +2,7 @@
   "name": "rail-departures",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://mikaleppala.github.io/uk-rail-departures",
   "dependencies": {
     "@types/node": "^16.18.126",
     "@types/react": "^19.1.8",
@@ -14,7 +15,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -32,5 +35,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
   }
 }

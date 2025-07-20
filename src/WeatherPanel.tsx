@@ -82,7 +82,8 @@ const WeatherPanel: React.FC = () => {
   useEffect(() => {
     if (!navigator.geolocation) {
       setLocError('Geolocation not supported');
-      setLocation(null);
+      // Fallback to London coordinates
+      setLocation({ lat: 51.5074, lon: -0.1278 });
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -91,8 +92,9 @@ const WeatherPanel: React.FC = () => {
         setLocError(null);
       },
       (err) => {
-        setLocError('Location unavailable');
-        setLocation(null);
+        setLocError('Location unavailable - showing London weather');
+        // Fallback to London coordinates
+        setLocation({ lat: 51.5074, lon: -0.1278 });
       },
       { enableHighAccuracy: false, timeout: 10000 }
     );
